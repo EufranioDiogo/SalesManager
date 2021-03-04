@@ -10,7 +10,9 @@ import java.util.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -20,19 +22,19 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
     Connection connection;
     int productIDSelected = -1;
     boolean flagActualizar = true;
-    /**
-     * Creates new form CadastraNoStockForm
-     */
+    
     public CadastraNoStockForm() {
         initComponents();
         this.setLocationRelativeTo(null);
         this.initializeDatabaseConnection();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
     
     public CadastraNoStockForm(int productID) {
         initComponents();
         this.setLocationRelativeTo(null);
         this.initializeDatabaseConnection();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     public void initializeDatabaseConnection() {
@@ -250,7 +252,7 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
         productTable.setForeground(new java.awt.Color(1, 1, 1));
         productTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null}
+
             },
             new String [] {
                 "ID", "Nome do Producto", "Caracteristicas"
@@ -361,7 +363,8 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
-        // TODO add your handling code here:
+        this.setVisible(false);
+        this.dispose();
     }//GEN-LAST:event_jButton5ActionPerformed
 
     private void productTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productTableMouseClicked
@@ -425,11 +428,29 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
 
                 int row = 0;
 
+                productTable.selectAll();
+                productTable.clearSelection();
+                
+                while(row < productTable.getRowCount()) {
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    model.removeRow(row);
+                }
+                int id;
+                String n1, n2;
+                
+                
                 while (result.next()) {
-                    productTable.setValueAt(result.getInt(1), row, 0);
-                    productTable.setValueAt(result.getString(2), row, 1);
-                    productTable.setValueAt(result.getString(3), row, 2);
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    id = result.getInt(1);
+                    n1 = result.getString(2);
+                    n2 = result.getString(3);
+                    
+                    model.addRow(new Object[]{result.getInt(1), result.getString(2), result.getString(3)});
+                    productTable.setValueAt(id, row, 0);
+                    productTable.setValueAt(n1, row, 1);
+                    productTable.setValueAt(n2, row, 2);
                     row++;
+                    
                 }
                 if (statement.getFetchSize() <= 0) {
                     while(row < productTable.getRowCount()) {
@@ -499,7 +520,6 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
             statement.executeUpdate();
             JOptionPane.showMessageDialog(null, "Producto actualizado!");
         } catch (Exception e) {
-            System.out.println("4");
             System.out.println(e.toString());
         }
         this.productIDSelected = -1;
@@ -522,7 +542,6 @@ public class CadastraNoStockForm extends javax.swing.JFrame {
             statement.executeUpdate();
             JOptionPane.showMessageDialog(null, "Producto Inserido");
         } catch (Exception e) {
-            System.out.println("5");
             System.out.println(e.toString());
         }
         this.productIDSelected = -1;

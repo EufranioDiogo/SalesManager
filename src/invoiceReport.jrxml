@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="report name" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="91dd6f59-11f5-468f-aa0b-82096ce7d33c">
+	<property name="ireport.zoom" value="1.0"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Crosstab Data Text" hAlign="Center"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="71" splitType="Stretch">
+			<staticText>
+				<reportElement x="206" y="0" width="140" height="25" uuid="43c7cdfe-b407-4ace-a435-615772cb67d4"/>
+				<textElement>
+					<font size="16" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Djbrilla Seybou]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="129" y="25" width="281" height="20" uuid="e5e906ab-f6f0-4e36-b9ec-8932f8c021ef"/>
+				<text><![CDATA[Angola - Luanda - Luanda - Avenida Deolinda Rodrigues]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="159" y="45" width="92" height="20" uuid="14ce7d52-0423-429e-b516-6256966cacf5"/>
+				<text><![CDATA[NIF: 5000558230]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="251" y="45" width="138" height="20" uuid="c962e0f5-f736-4924-83ea-b3f1c655927a"/>
+				<text><![CDATA[Contacto: +244945394411]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="85" splitType="Stretch">
+			<line>
+				<reportElement x="70" y="-4" width="392" height="1" uuid="ec9a4d59-a5bc-4dd0-b9ed-938e37d02b7f"/>
+			</line>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

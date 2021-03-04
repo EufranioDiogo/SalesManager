@@ -6,11 +6,25 @@
 package salesmanager;
 
 import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.print.Printable;
+import static java.awt.print.Printable.NO_SUCH_PAGE;
+import static java.awt.print.Printable.PAGE_EXISTS;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.LocalDateTime;
+import net.sf.jasperreports.engine.JRException;
 
 /**
  *
@@ -25,10 +39,12 @@ public class MainInterface extends javax.swing.JFrame {
     private final int level;
     private final float totalSession = 0;
     private String companyName;
-    private String companyNIF;
+    public static String companyNIF;
     private Date actualDate;
     private Connection connection;
-    
+    private InvoiceScreen invoiceScreenForm;
+    private float total = 0.0f;
+    private int userID;
     
     
     public MainInterface() {
@@ -37,14 +53,14 @@ public class MainInterface extends javax.swing.JFrame {
         this.level = 0;
         this.companyName = "Undefined";
         this.companyNIF = "0000000000000000";
+        totalSessionLabel.setText(totalSession + " AOA");
         this.setLocationRelativeTo(null);
         this.initializeDatabaseConnection();
         setCompanyInformation();
     }
     
-    public MainInterface(final String actualUser, int level) {
+    public MainInterface(final String actualUser, int level, int userID) {
         initComponents();
-        
         this.actualUser = actualUser;
         logUserLabel.setText(actualUser);
         totalSessionLabel.setText(totalSession + " AOA");
@@ -53,6 +69,7 @@ public class MainInterface extends javax.swing.JFrame {
         setPrivatesForUsers();
         this.initializeDatabaseConnection();
         setCompanyInformation();
+        this.userID = userID;
     }
     
     public void initializeDatabaseConnection() {
@@ -88,12 +105,12 @@ public class MainInterface extends javax.swing.JFrame {
             if (result.next()) {
                 companyNameLabel.setText(result.getString(1));
                 companyNIFLabel.setText(result.getString(2));
-                
             }
         } catch (Exception e) {
+            this.companyName = "k";
+            this.companyNIF = "e";
         }
-        this.companyName = "k";
-        this.companyNIF = "e";
+        
     }
     /**
      * This method is called from within the constructor to initialize the form.
@@ -123,10 +140,8 @@ public class MainInterface extends javax.swing.JFrame {
         jPanel2 = new javax.swing.JPanel();
         jLabel9 = new javax.swing.JLabel();
         jLabel10 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
         companyNameLabel = new javax.swing.JLabel();
         companyNIFLabel = new javax.swing.JLabel();
-        dateLabel = new javax.swing.JLabel();
         jMenuBar1 = new javax.swing.JMenuBar();
         editarMenuItem = new javax.swing.JMenu();
         jMenuItem3 = new javax.swing.JMenuItem();
@@ -137,10 +152,8 @@ public class MainInterface extends javax.swing.JFrame {
         verMenuItem = new javax.swing.JMenu();
         jMenuItem8 = new javax.swing.JMenuItem();
         jMenuItem9 = new javax.swing.JMenuItem();
-        jMenuItem10 = new javax.swing.JMenuItem();
         configuracoesMenuItem = new javax.swing.JMenu();
         jMenuItem11 = new javax.swing.JMenuItem();
-        jMenu6 = new javax.swing.JMenu();
         jMenu7 = new javax.swing.JMenu();
         jMenuItem14 = new javax.swing.JMenuItem();
         jMenu5 = new javax.swing.JMenu();
@@ -186,12 +199,19 @@ public class MainInterface extends javax.swing.JFrame {
 
         jLabel1.setBackground(new java.awt.Color(255, 0, 94));
         jLabel1.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(254, 254, 254));
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel1.setText("PRODUTO");
         jLabel1.setOpaque(true);
+        jLabel1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel1MouseClicked(evt);
+            }
+        });
 
         jLabel2.setBackground(new java.awt.Color(255, 0, 94));
         jLabel2.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(254, 254, 254));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel2.setText("FACTURAR");
         jLabel2.setOpaque(true);
@@ -203,6 +223,7 @@ public class MainInterface extends javax.swing.JFrame {
 
         stockButton.setBackground(new java.awt.Color(255, 0, 94));
         stockButton.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        stockButton.setForeground(new java.awt.Color(254, 254, 254));
         stockButton.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         stockButton.setText("STOCK");
         stockButton.setOpaque(true);
@@ -214,9 +235,15 @@ public class MainInterface extends javax.swing.JFrame {
 
         jLabel4.setBackground(new java.awt.Color(255, 0, 94));
         jLabel4.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(254, 254, 254));
         jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel4.setText("SAIR");
         jLabel4.setOpaque(true);
+        jLabel4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jLabel4MouseClicked(evt);
+            }
+        });
 
         jLabel5.setBackground(new java.awt.Color(254, 254, 254));
         jLabel5.setFont(new java.awt.Font("Roboto Light", 0, 18)); // NOI18N
@@ -250,11 +277,6 @@ public class MainInterface extends javax.swing.JFrame {
         jLabel10.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
         jLabel10.setText("NIF:");
 
-        jLabel11.setFont(new java.awt.Font("Roboto Light", 0, 14)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(1, 1, 1));
-        jLabel11.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        jLabel11.setText("Data");
-
         companyNameLabel.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
         companyNameLabel.setForeground(new java.awt.Color(1, 1, 1));
         companyNameLabel.setText("Kanda Commerce");
@@ -263,10 +285,6 @@ public class MainInterface extends javax.swing.JFrame {
         companyNIFLabel.setForeground(new java.awt.Color(1, 1, 1));
         companyNIFLabel.setText("023883747283");
 
-        dateLabel.setFont(new java.awt.Font("Roboto Light", 1, 14)); // NOI18N
-        dateLabel.setForeground(new java.awt.Color(1, 1, 1));
-        dateLabel.setText("12:45");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
@@ -274,7 +292,6 @@ public class MainInterface extends javax.swing.JFrame {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jLabel11, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                     .addComponent(jLabel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -283,9 +300,6 @@ public class MainInterface extends javax.swing.JFrame {
                         .addGap(510, 510, 510))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(companyNIFLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addContainerGap())
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                        .addComponent(dateLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addContainerGap())))
         );
         jPanel2Layout.setVerticalGroup(
@@ -298,11 +312,7 @@ public class MainInterface extends javax.swing.JFrame {
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
                     .addComponent(companyNIFLabel))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel11)
-                    .addComponent(dateLabel))
-                .addGap(0, 40, Short.MAX_VALUE))
+                .addGap(0, 63, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
@@ -447,17 +457,6 @@ public class MainInterface extends javax.swing.JFrame {
         });
         verMenuItem.add(jMenuItem9);
 
-        jMenuItem10.setBackground(new java.awt.Color(254, 254, 254));
-        jMenuItem10.setForeground(new java.awt.Color(1, 1, 1));
-        jMenuItem10.setText("Stock");
-        jMenuItem10.setOpaque(true);
-        jMenuItem10.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItem10ActionPerformed(evt);
-            }
-        });
-        verMenuItem.add(jMenuItem10);
-
         jMenuBar1.add(verMenuItem);
 
         configuracoesMenuItem.setBackground(new java.awt.Color(255, 0, 83));
@@ -475,14 +474,10 @@ public class MainInterface extends javax.swing.JFrame {
         });
         configuracoesMenuItem.add(jMenuItem11);
 
-        jMenu6.setBackground(new java.awt.Color(254, 254, 254));
-        jMenu6.setForeground(new java.awt.Color(1, 1, 1));
-        jMenu6.setText("Funcionário");
-        configuracoesMenuItem.add(jMenu6);
-
         jMenu7.setBackground(new java.awt.Color(254, 254, 254));
         jMenu7.setForeground(new java.awt.Color(1, 1, 1));
         jMenu7.setText("Usuário");
+        jMenu7.setOpaque(true);
 
         jMenuItem14.setText("Cadastrar");
         jMenuItem14.addActionListener(new java.awt.event.ActionListener() {
@@ -499,6 +494,11 @@ public class MainInterface extends javax.swing.JFrame {
         jMenu5.setBackground(new java.awt.Color(255, 0, 83));
         jMenu5.setForeground(new java.awt.Color(1, 1, 1));
         jMenu5.setText("Sobre");
+        jMenu5.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jMenu5MouseClicked(evt);
+            }
+        });
         jMenuBar1.add(jMenu5);
 
         setJMenuBar(jMenuBar1);
@@ -530,7 +530,7 @@ public class MainInterface extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem5ActionPerformed
 
     private void jMenuItem6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem6ActionPerformed
-        // TODO add your handling code here:
+       new CadastrarCliente().setVisible(true);
     }//GEN-LAST:event_jMenuItem6ActionPerformed
 
     private void jMenuItem7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem7ActionPerformed
@@ -538,19 +538,15 @@ public class MainInterface extends javax.swing.JFrame {
     }//GEN-LAST:event_jMenuItem7ActionPerformed
 
     private void jMenuItem8ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem8ActionPerformed
-        // TODO add your handling code here:
+        new ConfSalvasClientes().setVisible(true);
     }//GEN-LAST:event_jMenuItem8ActionPerformed
 
     private void jMenuItem9ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem9ActionPerformed
-        // TODO add your handling code here:
+        new ConfSalvasProductos().setVisible(true);
     }//GEN-LAST:event_jMenuItem9ActionPerformed
 
-    private void jMenuItem10ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem10ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jMenuItem10ActionPerformed
-
     private void jMenuItem11ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem11ActionPerformed
-        // TODO add your handling code here:
+        new CompanyDefinitions().setVisible(true);
     }//GEN-LAST:event_jMenuItem11ActionPerformed
 
     private void jMenuItem14ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem14ActionPerformed
@@ -562,9 +558,166 @@ public class MainInterface extends javax.swing.JFrame {
     }//GEN-LAST:event_stockButtonMouseClicked
 
     private void jLabel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel2MouseClicked
-        new InvoiceScreen().setVisible(true);
+        this.invoiceScreenForm = new InvoiceScreen(this);
+        
     }//GEN-LAST:event_jLabel2MouseClicked
 
+    private void jLabel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel1MouseClicked
+        new CadastrarProdutoForm().setVisible(true);
+    }//GEN-LAST:event_jLabel1MouseClicked
+
+    private void jLabel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jLabel4MouseClicked
+        try {
+            imprimir("/home/ed/NetBeansProjects/SalesManager/src/invoiceReport.jrxml" );
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
+        this.setVisible(false);
+        this.dispose();
+    }//GEN-LAST:event_jLabel4MouseClicked
+
+    private void jMenu5MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jMenu5MouseClicked
+        new Sobre().setVisible(true);
+    }//GEN-LAST:event_jMenu5MouseClicked
+
+    public void imprimir(String layout) throws JRException , SQLException, ClassNotFoundException, PrinterException {
+        PrinterJob pj = PrinterJob.getPrinterJob();        
+        pj.setPrintable(new BillPrintable(),getPageFormat(pj));
+        
+        try {
+            pj.print();
+        } catch (PrinterException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    public class BillPrintable implements Printable {
+        public int print(Graphics graphics, PageFormat pageFormat,int pageIndex) 
+        throws PrinterException 
+        {    
+            int result = NO_SUCH_PAGE;    
+            if (pageIndex == 0) {                    
+
+            Graphics2D g2d = (Graphics2D) graphics;                    
+
+            double width = pageFormat.getImageableWidth();                    
+
+            g2d.translate((int) pageFormat.getImageableX(),(int) pageFormat.getImageableY()); 
+
+            ////////// code by alqama//////////////
+
+            FontMetrics metrics=g2d.getFontMetrics(new Font("Arial",Font.BOLD,7));
+        //    int idLength=metrics.stringWidth("000000");
+            //int idLength=metrics.stringWidth("00");
+            int idLength=metrics.stringWidth("000");
+            int amtLength=metrics.stringWidth("000000");
+            int qtyLength=metrics.stringWidth("00000");
+            int priceLength=metrics.stringWidth("000000");
+            int prodLength=(int)width - idLength - amtLength - qtyLength - priceLength-17;
+            int productPosition = 0;
+            int discountPosition= prodLength+5;
+            int pricePosition = discountPosition +idLength+10;
+            int qtyPosition=pricePosition + priceLength + 4;
+            int amtPosition=qtyPosition + qtyLength;
+
+
+
+            try{
+                /*Draw Header*/
+                int x = 5;
+                int y = 0;
+                int yShift = 10;
+                int headerRectHeight=15;
+                int headerRectHeighta=40;
+
+                 g2d.setFont(new Font("Monospaced",Font.PLAIN,9));
+                g2d.drawString("-------------------------------------",x,y);
+                y+=yShift;
+                g2d.drawString("|            Djbrilla Seybou        |",x,y);
+                y+=yShift;
+                g2d.drawString("|NIF: " +companyNIF + " Tel: 945394411    |",x,y);
+                y+=yShift;
+                g2d.drawString("Luanda - Luanda - Deolinda Rodrigues",x,y);
+                y+=headerRectHeight;
+                g2d.drawString("______________________________________",x,y);
+                y+=headerRectHeight;
+
+                g2d.drawString("-------------------------------------",x,y);
+                y+=yShift;
+                g2d.drawString("*******   FECHAMENTO DE CONTA   ******",x,y);
+                y+=yShift;
+                g2d.drawString("-------------------------------------",x,y);
+                y+=headerRectHeight;
+                g2d.drawString("                                     ",x,y);
+                y+=yShift;
+                g2d.drawString("-------------------------------------",x,y);
+                y+=yShift;
+                g2d.drawString("Total Facturado: " + total + " AOA",x,y);
+                y+=yShift;
+                g2d.drawString("Trabalhador: " + actualUser,x,y);
+                y+=yShift;
+                g2d.drawString("Data: " + LocalDateTime.now().toString(),x,y);
+                y+=yShift;
+                g2d.drawString("-------------------------------------",x,y);
+                y+=yShift;
+                g2d.drawString("Acredite nos seus sonhos :-)",x,y);
+                y+=yShift;
+                g2d.drawString("*************************************",x,y);
+
+        } catch(Exception r) {
+          r.printStackTrace();
+        }
+            result = PAGE_EXISTS;
+        }
+        return result;    
+      }
+   }
+    
+    
+    public PageFormat getPageFormat(PrinterJob pj){
+        PageFormat pf = pj.defaultPage();
+        Paper paper = pf.getPaper();    
+
+        double middleHeight = 8.0;  
+        double headerHeight = 2.0;                  
+        double footerHeight = 2.0;                  
+        double width = convert_CM_To_PPI(8);      //printer know only point per inch.default value is 72ppi
+        double height = convert_CM_To_PPI(headerHeight + middleHeight + footerHeight); 
+        paper.setSize(width, height);
+        paper.setImageableArea(                    
+            0,
+            10,
+            width,            
+            height - convert_CM_To_PPI(1)
+        );   //define boarder size    after that print area width is about 180 points
+
+        pf.setOrientation(PageFormat.PORTRAIT);           //select orientation portrait or landscape but for this time portrait
+        pf.setPaper(paper);    
+
+        return pf;
+    }
+    
+    protected static double convert_CM_To_PPI(double cm) {            
+	return toPPI(cm * 0.393600787);            
+    }
+ 
+    protected static double toPPI(double inch) {
+        return inch * 72d;            
+    }
+    
+    public float getTotal() {
+        return total;
+    }
+    
+    public void setTotal(final float total) {
+        this.total = total;
+        this.totalSessionLabel.setText("" + total + " AOA");
+    }
+    
+    public int getUserID() {
+        return this.userID;
+    }
     /**
      * @param args the command line arguments
      */
@@ -605,14 +758,12 @@ public class MainInterface extends javax.swing.JFrame {
     private javax.swing.JLabel companyNIFLabel;
     private javax.swing.JLabel companyNameLabel;
     private javax.swing.JMenu configuracoesMenuItem;
-    private javax.swing.JLabel dateLabel;
     private javax.swing.JMenu editarMenuItem;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
     private javax.swing.JFrame jFrame1;
     private javax.swing.JFrame jFrame2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
-    private javax.swing.JLabel jLabel11;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
@@ -620,11 +771,9 @@ public class MainInterface extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel9;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu5;
-    private javax.swing.JMenu jMenu6;
     private javax.swing.JMenu jMenu7;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
-    private javax.swing.JMenuItem jMenuItem10;
     private javax.swing.JMenuItem jMenuItem11;
     private javax.swing.JMenuItem jMenuItem12;
     private javax.swing.JMenuItem jMenuItem14;

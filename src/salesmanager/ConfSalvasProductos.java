@@ -8,6 +8,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import javax.swing.JFrame;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +17,9 @@ import java.sql.ResultSet;
  */
 public class ConfSalvasProductos extends javax.swing.JFrame {
     Connection connection;
+    int idSelected;
+    InvoiceScreen invoiceScreenForm;
+    
     /**
      * Creates new form ConfSalvasProductos
      */
@@ -22,6 +27,18 @@ public class ConfSalvasProductos extends javax.swing.JFrame {
         initComponents();
         initializeDatabaseConnection();
         this.setLocationRelativeTo(null);
+        getProducts();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    ConfSalvasProductos(InvoiceScreen aThis) {
+        initComponents();
+        this.setVisible(true);
+        initializeDatabaseConnection();
+        this.setLocationRelativeTo(null);
+        this.invoiceScreenForm = aThis;
+        getProducts();
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
     
     public void initializeDatabaseConnection() {
@@ -63,7 +80,7 @@ public class ConfSalvasProductos extends javax.swing.JFrame {
         productTable.setForeground(new java.awt.Color(1, 1, 1));
         productTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null}
+
             },
             new String [] {
                 "ID", "Nome do Producto", "Caracteristicas"
@@ -152,8 +169,14 @@ public class ConfSalvasProductos extends javax.swing.JFrame {
                 
                 int row = 0;
                 
+                while (productTable.getRowCount() > 0) {
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    model.removeRow(0);
+                }
                 
                 while (result.next()) {
+                    DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                    model.addRow(new Object[]{result.getInt(1), result.getString(2), result.getString(3)});
                     productTable.setValueAt(result.getInt(1), row, 0);
                     productTable.setValueAt(result.getString(2), row, 1);
                     productTable.setValueAt(result.getString(3), row, 2);
@@ -173,17 +196,54 @@ public class ConfSalvasProductos extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_productNameTextBoxKeyReleased
 
+    public void getProducts() {
+        try {
+            String query = "SELECT * FROM config;";
+            PreparedStatement statement = connection.prepareStatement(query);
+
+            ResultSet result = statement.executeQuery();
+
+            int row = 0;
+
+            while (productTable.getRowCount() > 0) {
+                DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                model.removeRow(0);
+            }
+
+            while (result.next()) {
+                DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+                model.addRow(new Object[]{result.getInt(1), result.getString(2), result.getString(3)});
+                productTable.setValueAt(result.getInt(1), row, 0);
+                productTable.setValueAt(result.getString(2), row, 1);
+                productTable.setValueAt(result.getString(3), row, 2);
+                row++;
+            }
+            if (statement.getFetchSize() <= 0) {
+                while(row < productTable.getRowCount()) {
+                    productTable.setValueAt("", row, 0);
+                    productTable.setValueAt("", row, 1);
+                    productTable.setValueAt("", row, 2);
+                    row++;
+                }
+            }
+        } catch (Exception e) {
+            System.out.println(e.toString());
+        }
+    }
     private void productTableMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_productTableMouseClicked
         int rowIndex = productTable.getSelectedRow();
         
         int productId = Integer.parseInt(productTable.getValueAt(rowIndex, 0).toString());
+        idSelected = productId;
         
+        this.invoiceScreenForm.setProductInfoByIDInvoice();
         this.setVisible(false);
-        new CadastraNoStockForm(productId).setVisible(true);
         this.dispose();
-        
     }//GEN-LAST:event_productTableMouseClicked
 
+    public int getIDSelected() {
+        return idSelected;
+    }
     /**
      * @param args the command line arguments
      */

@@ -13,6 +13,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -150,17 +151,6 @@ public class TelaLogin extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         if (connection != null) {
-            MainInterface mainInterface = new MainInterface();
-            mainInterface.setVisible(true);
-            try {
-                //connection.close();
-                System.out.println("Connection Closed");
-            } catch (Exception e) {
-            }
-            this.setVisible(false);
-            this.dispose();
-        }
-        else if (connection != null) {
             String userName = userNameTextBox.getText().trim();
             char[] password = passwordTextBox.getPassword();
             
@@ -182,26 +172,14 @@ public class TelaLogin extends javax.swing.JFrame {
                     
                     
                     if (queryResult.next()) {
-                        System.out.println("ID: " + queryResult.getString(1));
-                        System.out.println("Username: " + queryResult.getString(2));
-                        System.out.println("Password: " + queryResult.getString(3));
-                        System.out.println("Level: " + queryResult.getInt(4));
-                        MainInterface mainInterface = new MainInterface(userName, queryResult.getInt(4));
+                        MainInterface mainInterface = new MainInterface(userName, queryResult.getInt(4), queryResult.getInt(1));
                         mainInterface.setVisible(true);
                         
                     } else {
-                        MainInterface mainInterface = new MainInterface();
-                        mainInterface.setVisible(true);
-                        this.setVisible(false);
-                        this.dispose();
+                        JOptionPane.showMessageDialog(null, "Palavra-passe ou Usuário errado");
                     }
                     this.setVisible(false);
                     this.dispose();
-                    
-                    
-                    
-
-                
                 } catch (SQLException ex) {
                     Logger.getLogger(TelaLogin.class.getName()).log(Level.SEVERE, null, ex);
                 }

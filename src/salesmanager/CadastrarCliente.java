@@ -5,19 +5,53 @@
  */
 package salesmanager;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author ed
  */
 public class CadastrarCliente extends javax.swing.JFrame {
 
+    Connection connection;
+    ConfSalvasClientes confSalvasClientes;
+    boolean flagUpdate = false;
+    int clientID;
+    String clientNIF;
+    String clientName;
+    
+    
     /**
      * Creates new form CadastrarCliente
      */
     public CadastrarCliente() {
         initComponents();
+        this.initializeDatabaseConnection();
+        this.setLocationRelativeTo(null);
+        this.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
+    public void initializeDatabaseConnection() {
+        try {
+            Class.forName("org.postgresql.Driver");
+            
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/invoicedb", "postgres", "L1i2G1D7");
+        
+            if (connection != null) {
+                System.out.println("Connection working");
+            } else {
+                System.out.println("Connection failed");
+            }
+        } catch(Exception e) {
+            System.out.println("1");
+            System.out.println(e.toString());
+        }
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -27,22 +61,222 @@ public class CadastrarCliente extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jPanel1 = new javax.swing.JPanel();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
+        jLabel4 = new javax.swing.JLabel();
+        nomeTextBox = new javax.swing.JTextField();
+        nifTextBox = new javax.swing.JTextField();
+        telefoneTextBox = new javax.swing.JTextField();
+        emailTextBox = new javax.swing.JTextField();
+        jButton1 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        sairBtn = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBackground(new java.awt.Color(254, 254, 254));
+
+        jLabel1.setBackground(new java.awt.Color(254, 254, 254));
+        jLabel1.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(1, 1, 1));
+        jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel1.setText("Nome:");
+
+        jLabel2.setBackground(new java.awt.Color(254, 254, 254));
+        jLabel2.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(1, 1, 1));
+        jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel2.setText("NIF:");
+
+        jLabel3.setBackground(new java.awt.Color(254, 254, 254));
+        jLabel3.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(1, 1, 1));
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel3.setText("Telefone:");
+
+        jLabel4.setBackground(new java.awt.Color(254, 254, 254));
+        jLabel4.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        jLabel4.setForeground(new java.awt.Color(1, 1, 1));
+        jLabel4.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        jLabel4.setText("Email:");
+
+        nomeTextBox.setBackground(new java.awt.Color(254, 254, 254));
+        nomeTextBox.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        nomeTextBox.setForeground(new java.awt.Color(1, 1, 1));
+
+        nifTextBox.setBackground(new java.awt.Color(254, 254, 254));
+        nifTextBox.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        nifTextBox.setForeground(new java.awt.Color(1, 1, 1));
+
+        telefoneTextBox.setBackground(new java.awt.Color(254, 254, 254));
+        telefoneTextBox.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        telefoneTextBox.setForeground(new java.awt.Color(1, 1, 1));
+
+        emailTextBox.setBackground(new java.awt.Color(254, 254, 254));
+        emailTextBox.setFont(new java.awt.Font("Roboto Light", 0, 12)); // NOI18N
+        emailTextBox.setForeground(new java.awt.Color(1, 1, 1));
+
+        jButton1.setBackground(new java.awt.Color(0, 106, 255));
+        jButton1.setText("Salvar");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Buscar");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
+        sairBtn.setText("Sair");
+        sairBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sairBtnActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(sairBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 87, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(emailTextBox, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE)
+                    .addComponent(telefoneTextBox)
+                    .addComponent(nifTextBox)
+                    .addComponent(nomeTextBox))
+                .addContainerGap(63, Short.MAX_VALUE))
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(16, 16, 16)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel1)
+                    .addComponent(nomeTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel2)
+                    .addComponent(nifTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel3)
+                    .addComponent(telefoneTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel4)
+                    .addComponent(emailTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButton3, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(sairBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 37, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap())
+        );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 666, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 469, Short.MAX_VALUE)
+            .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        if (flagUpdate == false) {
+            try {
+                String name = nomeTextBox.getText().trim();
+                String nif = nifTextBox.getText();
+                String telefone = telefoneTextBox.getText();
+                String email = emailTextBox.getText();
+
+                if (name.length() > 0 && name.length() <= 50) {
+                    String query = "INSERT INTO costumer (nome, nif, telefone, email) VALUES (?, ?, ?, ?)";
+                    PreparedStatement statement = connection.prepareStatement(query);
+
+
+                    statement.setString(1, name);
+                    statement.setString(2, nif);
+                    statement.setString(3, telefone);
+                    statement.setString(4, email);
+                    statement.executeUpdate();
+                    JOptionPane.showMessageDialog(null, "Cliente cadastrado");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Digite um nome com cerca de uma ou 50 letras");
+                }
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        } else {
+            try {
+                String name = nomeTextBox.getText().trim();
+                String nif = nifTextBox.getText();
+                String telefone = telefoneTextBox.getText();
+                String email = emailTextBox.getText();
+
+                if (name.length() > 0 && name.length() <= 50) {
+                    String query = "UPDATE costumer SET nome=?, nif=?, telefone=?, email=? WHERE costumer_id=?";
+                    PreparedStatement statement = connection.prepareStatement(query);
+
+
+                    statement.setString(1, name);
+                    statement.setString(2, nif);
+                    statement.setString(3, telefone);
+                    statement.setString(4, email);
+                    statement.setInt(5, clientID);
+                    statement.executeUpdate();
+                    JOptionPane.showMessageDialog(null, "Cliente cadastrado");
+                } else {
+                    JOptionPane.showMessageDialog(null, "Digite um nome com cerca de uma ou 50 letras");
+                }
+            } catch (Exception e) {
+                System.out.println(e.toString());
+            }
+        }
+        
+    }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        this.confSalvasClientes = new ConfSalvasClientes(this);
+        this.confSalvasClientes.setVisible(true);
+    }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void sairBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sairBtnActionPerformed
+        this.setVisible(false);
+        this.dispose();
+    }//GEN-LAST:event_sairBtnActionPerformed
+
+    public void setClientID() {
+        
+    }
+    
+    public int getClientID() {
+        return this.confSalvasClientes.idSelected;
+    }
     /**
      * @param args the command line arguments
      */
@@ -79,5 +313,50 @@ public class CadastrarCliente extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField emailTextBox;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
+    private javax.swing.JTextField nifTextBox;
+    private javax.swing.JTextField nomeTextBox;
+    private javax.swing.JButton sairBtn;
+    private javax.swing.JTextField telefoneTextBox;
     // End of variables declaration//GEN-END:variables
+
+    void setClientInfoByID() {
+       int costumer_id = this.confSalvasClientes.getIDSelected();
+        
+        
+        if (costumer_id > 0) {
+            try {
+                String query = "SELECT * FROM costumer WHERE costumer_id=?";
+                PreparedStatement statement = connection.prepareStatement(query);
+                
+                statement.setInt(1, costumer_id);
+                ResultSet result = statement.executeQuery();
+                
+                if (result.next()) {
+                    String name = result.getString(2);
+                    String nif = result.getString(3);
+                    String telefone = result.getString(4);
+                    String email = result.getString(5);
+                    
+                    nomeTextBox.setText(name);
+                    nifTextBox.setText(nif);
+                    telefoneTextBox.setText(telefone);
+                    emailTextBox.setText(email);
+                    clientID = costumer_id;
+                    flagUpdate = true;
+                } else {
+                    JOptionPane.showMessageDialog(null, "Cliente não encontrado");
+                }
+                
+            } catch (Exception e) {
+            }
+        }
+    }
 }
